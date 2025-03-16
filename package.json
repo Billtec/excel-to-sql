@@ -1,0 +1,30 @@
+{
+  "name": "excel-to-sql",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A tool to convert Excel files to SQL insert statements",
+  "keywords": [
+    "excel",
+    "sql",
+    "converter"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Billtec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/billtec/excel-to-sql"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

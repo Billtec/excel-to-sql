@@ -38,7 +38,10 @@ node index.js
 
 3. 程序会列出当前目录下所有的.xls和.xlsx文件
 4. 输入要转换的文件编号
-5. 程序会自动生成与Excel文件同名的SQL文件（扩展名为.sql），其中包含所有的SQL插入语句
+5. 选择SQL生成方式：
+   - 输入1：每条记录生成一个独立的INSERT语句
+   - 输入2：所有记录合并成一个INSERT语句
+6. 程序会自动生成与Excel文件同名的SQL文件（扩展名为.sql），其中包含所有的SQL插入语句
 
 ## 注意事项
 
@@ -55,12 +58,24 @@ node index.js
 Available files:
 1. users.xlsx
 Please select a file by entering its number: 1
+Please select SQL generation mode (1: One INSERT per record, 2: Single INSERT with multiple records): 2
 ```
 
-程序将生成`users.sql`文件，包含类似以下格式的SQL语句：
+程序将根据选择的生成方式，生成`users.sql`文件。
+
+如果选择方式1（每条记录一个INSERT），生成的SQL语句格式如下：
 
 ```sql
 INSERT INTO `users` (`id`, `name`, `email`) VALUES (1, 'John Doe', 'john@example.com');
+INSERT INTO `users` (`id`, `name`, `email`) VALUES (2, 'Jane Smith', 'jane@example.com');
+```
+
+如果选择方式2（所有记录合并），生成的SQL语句格式如下：
+
+```sql
+INSERT INTO `users` (`id`, `name`, `email`) VALUES 
+(1, 'John Doe', 'john@example.com'),
+(2, 'Jane Smith', 'jane@example.com')
 ```
 
 ## 许可证

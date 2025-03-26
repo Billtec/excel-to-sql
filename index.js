@@ -52,26 +52,42 @@ rl.question('Please select a file by entering its number: ', (selectedFileIndexS
         return completeRow;
     });
 
-    // 从第一行开始，因为第一行是字段名
-    const sqlStatements = completeData.map(row => {
-        const values = Object.values(row).map(value => {
-            // 对特殊字符进行转义
-            return mysql.escape(value);
-        });
-        // 生成SQL插入语句，使用反引号包裹字段名
+    // 询问用户选择SQL生成方式
+    rl.question('Please select SQL generation mode (1: One INSERT per record, 2: Single INSERT with multiple records): ', (mode) => {
+        // 获取表名和字段名
+        const tableName = files[selectedFileIndex].split('.')[0];
         const fieldNamesEscaped = Array.from(allFieldNames).map(fieldName => {
             return mysql.escapeId(fieldName);
         });
-        return `INSERT INTO ${mysql.escapeId(files[selectedFileIndex].split('.')[0])} (${fieldNamesEscaped.join(', ')}) VALUES (${values.join(', ')})`;
+        const tableAndFields = `INSERT INTO ${mysql.escapeId(tableName)} (${fieldNamesEscaped.join(', ')})`;
+
+        let sqlStatements;
+        if (mode === '1') {
+            // 每条记录生成一个INSERT语句
+            sqlStatements = completeData.map(row => {
+                const values = Object.values(row).map(value => mysql.escape(value));
+                return `${tableAndFields} VALUES (${values.join(', ')})`;
+            });
+        } else if (mode === '2') {
+            // 所有记录合并成一个INSERT语句
+            const allValues = completeData.map(row => {
+                const values = Object.values(row).map(value => mysql.escape(value));
+                return `(${values.join(', ')})`;
+            });
+            sqlStatements = [`${tableAndFields} VALUES ${allValues.join(',\n')}`];
+        } else {
+            console.error('Invalid mode selection. Please try again.');
+            rl.close();
+            process.exit(1);
+        }
+
+        // 获取表名作为输出文件名
+        const outputFileName = `${tableName}.sql`;
+
+        // 将SQL语句保存至对应的sql文件
+        fs.writeFileSync(outputFileName, sqlStatements.join(';\n'));
+
+        console.log(`SQL statements have been saved to ${outputFileName}`);
+        rl.close();
     });
-
-    // 获取表名作为输出文件名
-    const tableName = files[selectedFileIndex].split('.')[0];
-    const outputFileName = `${tableName}.sql`;
-
-    // 将SQL语句保存至对应的sql文件
-    fs.writeFileSync(outputFileName, sqlStatements.join(';\n'));
-
-    console.log(`SQL statements have been saved to ${outputFileName}`);
-    rl.close();
 });
